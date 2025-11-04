@@ -1,19 +1,24 @@
 #include "Scene.h"
 
-Scene::Scene()
+Scene::Scene() : Scene("Window", 1280, 720)
 {
-
+	
 }
 
-bool Scene::createWindow() { return createWindow("Window"); }
+Scene::Scene(std::string windowName, int width, int height) :
+	mWidth{width},
+	mHeight{height}
+{
+	createWindow(windowName);
+	createRenderer();
+	createTexture();
+
+	std::srand(std::time(nullptr));
+}
+
 bool Scene::createWindow(std::string s)
 {
-	if (mWindow != nullptr) {
-		std::cerr << "Scene already has an open window." << std::endl;
-		return false;
-	}
-
-	mWindow = SDL_CreateWindow(s.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 720, SDL_WINDOW_SHOWN);
+	mWindow = SDL_CreateWindow(s.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, mWidth, mHeight, SDL_WINDOW_ALWAYS_ON_TOP);
 
 	if (!mWindow) {
 		std::cerr << "Error creating window: " << SDL_GetError() << std::endl;
@@ -24,15 +29,12 @@ bool Scene::createWindow(std::string s)
 	return true;
 }
 
-bool Scene::winSurface() {
-	if (mWindow == nullptr) {
-		return false;
-	}
+bool Scene::createRenderer() 
+{
+	mRenderer = SDL_CreateRenderer(mWindow, -1, 0);
 
-	mWinSurface = SDL_GetWindowSurface(mWindow);
-
-	if (!mWinSurface) {
-		std::cerr << "Error getting surface: " << SDL_GetError() << std::endl;
+	if (!mRenderer) {
+		std::cerr << "Error creating renderer: " << SDL_GetError() << std::endl;
 		system("pause");
 		return false;
 	}
@@ -40,68 +42,61 @@ bool Scene::winSurface() {
 	return true;
 }
 
-SDL_Surface* Scene::getWinSurface()
+bool Scene::createTexture() 
 {
-	if (mWinSurface == nullptr) {
-		std::cout << "Attempting to set winSurface..." << std::endl;
-		if (!winSurface()) std::cout << "Return value will be a nullptr." << std::endl;
+	mTexture = SDL_CreateTexture(mRenderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, mWidth, mHeight);
+
+	if (!mTexture) {
+		std::cerr << "Error creating texture: " << SDL_GetError() << std::endl;
+		system("pause");
+		return false;
 	}
 
-	return mWinSurface;
-}
-
-SDL_Window* Scene::getWindow() const
-{
-	if (mWindow == nullptr) std::cout << "Return value will be a nullptr." << std::endl;
-	return mWindow;
+	return true;
 }
 
 bool Scene::fill() { return fill(255, 255, 255); }
 bool Scene::fill(int r, int g, int b)
 {
-	if (mWinSurface == nullptr) {
-		if (!winSurface()) {
-			std::cout << "Cannot fill: The scene has no window surface, or it's pointer is not known." << std::endl;
-			return false;
+	SDL_SetRenderDrawColor(mRenderer, r, g, b, 255);
+	SDL_RenderClear(mRenderer);
+	return true;
+}
+
+bool Scene::noise()
+{
+	void* pixels;
+	int pitch;
+	SDL_LockTexture(mTexture, nullptr, &pixels, &pitch);
+
+	Uint32* p = static_cast<Uint32*>(pixels);
+	int rowPixels = pitch / 4; // pixels per rij (kan groter zijn dan mWidth)
+	for (int y = 0; y < mHeight; ++y) {
+		Uint32* row = p + y * rowPixels;
+		for (int x = 0; x < mWidth; ++x) {
+			row[x] = (std::rand() % 2) ? 0xFFFFFFFF : 0xFF000000;
 		}
 	}
 
-	SDL_FillRect(mWinSurface, NULL, SDL_MapRGB(mWinSurface->format, r, g, b));
-	return true;
+	SDL_UnlockTexture(mTexture);
+
+	SDL_RenderClear(mRenderer);
+	SDL_RenderCopy(mRenderer, mTexture, nullptr, nullptr);
+
+	return false;
 }
 
 bool Scene::update()
 {
-	if (mWindow == nullptr) {
-		std::cout << "Cannot update: The scene has no window, or it's pointer is not known." << std::endl;
-		return false;
-	}
-
-	SDL_UpdateWindowSurface(mWindow);
+	SDL_RenderPresent(mRenderer);
 	return true;
 }
 
-bool Scene::closeWindow()
+bool Scene::SDLDestroy()
 {
-	if (mWindow == nullptr) std::cout << "No window to close." << std::endl;
-	else SDL_DestroyWindow(mWindow);
+	SDL_DestroyTexture(mTexture);
+	SDL_DestroyRenderer(mRenderer);
+	SDL_DestroyWindow(mWindow);
 
-	return true;
-}
-
-bool initializeSDL()
-{
-	if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
-		std::cout << "Error initializing SDL: " << SDL_GetError() << std::endl;
-		system("pause");
-		return false;
-	}
-
-	return true;
-}
-
-bool quitSDL()
-{
-	SDL_Quit();
 	return true;
 }

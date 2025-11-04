@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+#include <cstdlib>
+#include <ctime>
 #include <iostream>
 
 #include <SDL2/SDL.h>
@@ -8,27 +10,35 @@
 class Scene
 {
 public:
-	Scene();
+	Scene(); 
+	Scene(std::string windowName, int width, int height);
 
-	bool createWindow();
-	bool createWindow(std::string s);
+	int getWidth() const { return mWidth; }
+	int getHeight() const { return mHeight; }
 
-	SDL_Surface* getWinSurface();
-	SDL_Window* getWindow() const;
+	SDL_Window* getWindow() const { return mWindow; }
+	SDL_Renderer* getRenderer() const { return mRenderer; }
+	SDL_Texture* getTexture() const { return mTexture; }
 
-	bool fill();
+	bool fill(); 
 	bool fill(int r, int g, int b);
+
+	bool noise();
 
 	bool update();
 
-	bool closeWindow();
+	bool SDLDestroy();
 
 private:
-	bool winSurface();
-	SDL_Surface* mWinSurface = nullptr;
+	int mWidth;
+	int mHeight;
 
 	SDL_Window* mWindow = nullptr;
-};
+	bool createWindow(std::string s);
 
-bool initializeSDL();
-bool quitSDL();
+	SDL_Renderer* mRenderer = nullptr;
+	bool createRenderer();
+
+	SDL_Texture* mTexture = nullptr;
+	bool createTexture();
+};
