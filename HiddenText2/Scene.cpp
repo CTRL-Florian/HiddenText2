@@ -13,7 +13,8 @@ Scene::Scene(std::string windowName, int width, int height) :
 	createRenderer();
 	createTexture();
 
-	std::srand(std::time(nullptr));
+	mRNG.seed(std::random_device{}());
+	mDist = std::uniform_int_distribution<int>(0, 1);
 }
 
 bool Scene::createWindow(std::string s)
@@ -31,7 +32,7 @@ bool Scene::createWindow(std::string s)
 
 bool Scene::createRenderer() 
 {
-	mRenderer = SDL_CreateRenderer(mWindow, -1, 0);
+	mRenderer = SDL_CreateRenderer(mWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
 	if (!mRenderer) {
 		std::cerr << "Error creating renderer: " << SDL_GetError() << std::endl;
@@ -70,11 +71,12 @@ bool Scene::noise()
 	SDL_LockTexture(mTexture, nullptr, &pixels, &pitch);
 
 	Uint32* p = static_cast<Uint32*>(pixels);
-	int rowPixels = pitch / 4; // pixels per rij (kan groter zijn dan mWidth)
+	int rowPixels = pitch / 4;
+
 	for (int y = 0; y < mHeight; ++y) {
 		Uint32* row = p + y * rowPixels;
 		for (int x = 0; x < mWidth; ++x) {
-			row[x] = (std::rand() % 2) ? 0xFFFFFFFF : 0xFF000000;
+			row[x] = mDist(mRNG) ? 0xFFFFFFFF : 0xFF000000;
 		}
 	}
 

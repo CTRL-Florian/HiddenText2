@@ -27,7 +27,7 @@ int main(int argc, char** args) {
         scene.noise();
         scene.update();
 
-        SDL_Delay(15);
+        SDL_Delay(100);
     }
 
     scene.SDLDestroy();

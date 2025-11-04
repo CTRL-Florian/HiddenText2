@@ -1,8 +1,7 @@
 #pragma once
 
 #include <string>
-#include <cstdlib>
-#include <ctime>
+#include <random>
 #include <iostream>
 
 #include <SDL2/SDL.h>
@@ -24,6 +23,8 @@ public:
 	bool fill(int r, int g, int b);
 
 	bool noise();
+	std::mt19937 mRNG;
+	std::uniform_int_distribution<int> mDist;
 
 	bool update();
 
