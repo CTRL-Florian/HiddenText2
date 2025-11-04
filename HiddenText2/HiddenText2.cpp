@@ -24,10 +24,10 @@ int main(int argc, char** args) {
             if (e.type == SDL_QUIT) running = false;
         }
 
-        scene.noise();
+        scene.noiseGray();
         scene.update();
 
-        SDL_Delay(100);
+        SDL_Delay(15);
     }
 
     scene.SDLDestroy();

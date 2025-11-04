@@ -14,7 +14,8 @@ Scene::Scene(std::string windowName, int width, int height) :
 	createTexture();
 
 	mRNG.seed(std::random_device{}());
-	mDist = std::uniform_int_distribution<int>(0, 1);
+	mBinDist = std::uniform_int_distribution<int>(0, 1);
+	mGrayDist = std::uniform_int_distribution<int>(0, 255);
 }
 
 bool Scene::createWindow(std::string s)
@@ -64,7 +65,7 @@ bool Scene::fill(int r, int g, int b)
 	return true;
 }
 
-bool Scene::noise()
+bool Scene::noisePixel()
 {
 	void* pixels;
 	int pitch;
@@ -76,7 +77,32 @@ bool Scene::noise()
 	for (int y = 0; y < mHeight; ++y) {
 		Uint32* row = p + y * rowPixels;
 		for (int x = 0; x < mWidth; ++x) {
-			row[x] = mDist(mRNG) ? 0xFFFFFFFF : 0xFF000000;
+			row[x] = mBinDist(mRNG) ? 0xFFFFFFFF : 0xFF000000;
+		}
+	}
+
+	SDL_UnlockTexture(mTexture);
+
+	SDL_RenderClear(mRenderer);
+	SDL_RenderCopy(mRenderer, mTexture, nullptr, nullptr);
+
+	return false;
+}
+
+bool Scene::noiseGray()
+{
+	void* pixels;
+	int pitch;
+	SDL_LockTexture(mTexture, nullptr, &pixels, &pitch);
+
+	Uint32* p = static_cast<Uint32*>(pixels);
+	int rowPixels = pitch / 4;
+
+	for (int y = 0; y < mHeight; ++y) {
+		Uint32* row = p + y * rowPixels;
+		for (int x = 0; x < mWidth; ++x) {
+			Uint8 gray = static_cast<Uint8>(mGrayDist(mRNG));
+			row[x] = 0xFF000000 | (gray << 16) | (gray << 8) | gray;
 		}
 	}
 

@@ -22,9 +22,11 @@ public:
 	bool fill(); 
 	bool fill(int r, int g, int b);
 
-	bool noise();
 	std::mt19937 mRNG;
-	std::uniform_int_distribution<int> mDist;
+	std::uniform_int_distribution<int> mBinDist;
+	bool noisePixel();
+	std::uniform_int_distribution<int> mGrayDist;
+	bool noiseGray();
 
 	bool update();
 
