@@ -124,15 +124,18 @@ bool Scene::noiseGray(SDL_Texture* tex, SDL_Rect rect)
 	return false;
 }
 
-bool Scene::update()
+bool Scene::update() { return update(true); }
+bool Scene::update(bool clear)
 {
 	SDL_RenderPresent(mRenderer);
+	if (clear) SDL_RenderClear(mRenderer);
 	return true;
 }
 
 bool Scene::renderClear()
 {
 	SDL_RenderClear(mRenderer);
+	return true;
 }
 
 bool Scene::SDLDestroy()

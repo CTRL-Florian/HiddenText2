@@ -36,6 +36,7 @@ public:
 	bool noiseGray(SDL_Texture* tex, SDL_Rect rect);
 
 	bool update();
+	bool update(bool clear);
 	bool renderClear();
 
 	bool SDLDestroy();
