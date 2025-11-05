@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Rect.h"
+
 #include <string>
 #include <random>
 #include <iostream>
@@ -19,22 +21,30 @@ public:
 	SDL_Renderer* getRenderer() const { return mRenderer; }
 	SDL_Texture* getTexture() const { return mTexture; }
 
+	bool drawRect(SDL_Rect rect);
+	bool drawRect(SDL_Rect rect, int r, int g, int b, int a);
+
 	bool fill(); 
-	bool fill(int r, int g, int b);
+	bool fill(SDL_Rect rect, int r, int g, int b, int a);
 
 	std::mt19937 mRNG;
 	std::uniform_int_distribution<int> mBinDist;
 	bool noisePixel();
+	bool noisePixel(SDL_Texture* tex, SDL_Rect rect);
 	std::uniform_int_distribution<int> mGrayDist;
 	bool noiseGray();
+	bool noiseGray(SDL_Texture* tex, SDL_Rect rect);
 
 	bool update();
+	bool renderClear();
 
 	bool SDLDestroy();
 
 private:
 	int mWidth;
 	int mHeight;
+
+	SDL_Rect mRect;
 
 	SDL_Window* mWindow = nullptr;
 	bool createWindow(std::string s);
@@ -45,3 +55,6 @@ private:
 	SDL_Texture* mTexture = nullptr;
 	bool createTexture();
 };
+
+void position(SDL_Rect& rect, int x, int y);
+void move(SDL_Rect& rect, int x, int y);
