@@ -7,12 +7,13 @@
 #include <iostream>
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 
 class Scene
 {
 public:
 	Scene(); 
-	Scene(std::string windowName, int width, int height, int padding);
+	Scene(std::string windowName, int width, int height);
 
 	int getWidth() const { return mWidth; }
 	int getHeight() const { return mHeight; }
@@ -35,7 +36,12 @@ public:
 	bool noiseGray();
 	bool noiseGray(SDL_Texture* tex, SDL_Rect rect);
 
+	bool noisePixelOnText(SDL_Texture* tex, int x, int y);
+
 	bool keepBackground();
+
+	bool render(SDL_Texture* tex);
+	bool render(SDL_Texture* tex, SDL_Rect rect);
 
 	bool update();
 	bool update(bool clear);
@@ -46,8 +52,6 @@ public:
 private:
 	int mWidth;
 	int mHeight;
-
-	int mPadding;
 
 	SDL_Rect mRect;
 
@@ -64,3 +68,5 @@ private:
 void position(SDL_Rect& rect, int x, int y);
 void positionCenter(SDL_Rect& rect, int x, int y);
 void move(SDL_Rect& rect, int x, int y);
+
+SDL_Texture* textTexture(SDL_Renderer* r, const char* s, int size);

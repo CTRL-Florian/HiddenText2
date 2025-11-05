@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Scene.h"
+#include "StyleSheet.h"
 
 #include <string>
 
@@ -10,6 +11,7 @@ class Text
 {
 public:
 	Text(Scene& scene, std::string& text, int size);
+	Text(Scene& scene, std::string& text, int size, StyleSheet style);
 
 	std::string getText() const { return mText; }
 	int getSize() const { return mSize; }
@@ -22,5 +24,6 @@ private:
 	std::string& mText;
 	int mSize;
 
+	StyleSheet mStyle;
 };
 

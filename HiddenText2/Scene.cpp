@@ -1,13 +1,12 @@
 #include "Scene.h"
 
-Scene::Scene() : Scene("Window", 1280, 720, 0)
+Scene::Scene() : Scene("Window", 1280, 720)
 {
 	
 }
 
-Scene::Scene(std::string windowName, int width, int height, int padding) :
-	mWidth{width}, mHeight{height},
-	mPadding{padding}
+Scene::Scene(std::string windowName, int width, int height) :
+	mWidth{width}, mHeight{height}
 {
 	createWindow(windowName);
 	createRenderer();
@@ -124,9 +123,49 @@ bool Scene::noiseGray(SDL_Texture* tex, SDL_Rect rect)
 	return false;
 }
 
+bool Scene::noisePixelOnText(SDL_Texture* tex, int x, int y)
+{
+	int w, h;
+	SDL_QueryTexture(tex, nullptr, nullptr, &w, &h);
+
+	void* pixels;
+	int pitch;
+	if (SDL_LockTexture(tex, nullptr, &pixels, &pitch) != 0) {
+		std::cerr << "Failed to lock texture: " << SDL_GetError() << std::endl;
+		return false;
+	}
+
+	Uint32* p = static_cast<Uint32*>(pixels);
+	int rowPixels = pitch / 4;
+
+	for (int j = 0; j < h; ++j) {
+		Uint32* row = p + j * rowPixels;
+		for (int i = 0; i < w; ++i) {
+			Uint32 pixel = row[i];
+			Uint8 alpha = pixel >> 24;
+			if (alpha > 0) {
+				row[i] = (alpha << 24) | (mBinDist(mRNG) ? 0xFFFFFF : 0x000000);
+			}
+		}
+	}
+
+	SDL_UnlockTexture(tex);
+
+	SDL_Rect dst{ x, y, w, h };
+	SDL_RenderCopy(mRenderer, tex, nullptr, &dst);
+	return true;
+}
+
 bool Scene::keepBackground()
 {
 	SDL_RenderCopy(mRenderer, mBackground, nullptr, &mRect);
+	return true;
+}
+
+bool Scene::render(SDL_Texture* tex) { return render(tex, mRect); }
+bool Scene::render(SDL_Texture* tex, SDL_Rect rect)
+{
+	SDL_RenderCopy(mRenderer, tex, nullptr, &rect);
 	return true;
 }
 
@@ -167,4 +206,44 @@ void positionCenter(SDL_Rect& rect, int x, int y)
 void move(SDL_Rect& rect, int x, int y) 
 { 
 	rect.x += x; rect.y += y; 
+}
+
+SDL_Texture* textTexture(SDL_Renderer* r, const char* s, int size)
+{
+	TTF_Font* font = TTF_OpenFont("D:/Projects/HiddenText2/HiddenText2/fonts/ARIAL.ttf", size);
+	if (!font) {
+		std::cerr << "Failed to load font: " << TTF_GetError() << std::endl;
+		TTF_CloseFont(font);
+		return nullptr;
+	}
+
+	SDL_Color color{ 0, 0, 0, 255 };
+	SDL_Surface* surface = TTF_RenderText_Blended(font, s, color);
+	if (!surface) {
+		std::cerr << "Failed to create text surface: " << TTF_GetError() << std::endl;
+		TTF_CloseFont(font);
+		return nullptr;
+	}
+
+	SDL_Texture* texture = SDL_CreateTexture(
+		r,
+		SDL_PIXELFORMAT_ARGB8888,
+		SDL_TEXTUREACCESS_STREAMING,
+		surface->w,
+		surface->h
+	);
+
+	if (!texture) {
+		printf("Texture creation error: %s\n", SDL_GetError());
+		SDL_FreeSurface(surface);
+		return nullptr;
+	}
+
+	SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+	SDL_UpdateTexture(texture, nullptr, surface->pixels, surface->pitch);
+
+	SDL_FreeSurface(surface);
+	TTF_CloseFont(font);
+
+	return texture;
 }

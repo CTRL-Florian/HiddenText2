@@ -10,18 +10,21 @@ int main(int argc, char** args) {
 
     initializeSDL();
 
-    Scene scene("Window", 1280, 720);
+    Scene scene;
 
     scene.fill();
     scene.update();
 
     SDL_Delay(500);
 
-    SDL_Rect rect{ 100, 100, 200, 200 };
-    SDL_Texture* tex = SDL_CreateTexture(scene.getRenderer(), SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, 200, 200);
+    /*SDL_Rect rect{ 100, 100, 200, 200 };
+    SDL_Texture* tex = SDL_CreateTexture(scene.getRenderer(), SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, 200, 200);*/
+
+    auto r = scene.getRenderer();
+    auto textT = textTexture(r, "HELLO", 375);
 
     int count = 0;
-    int multiplier = 4;
+    int multiplier = 5;
 
     bool running = true;
     SDL_Event e;
@@ -30,7 +33,31 @@ int main(int argc, char** args) {
             if (e.type == SDL_QUIT) running = false;
         }
 
-        if (rect.x > 900) {
+        if (count < multiplier) {
+            scene.keepBackground();
+            scene.noisePixelOnText(textT, 50, 50);
+            count++;
+        }
+        else if (count >= multiplier) {
+            scene.noisePixel();
+            scene.noisePixelOnText(textT, 50, 50);
+            count = 0;
+        }
+
+        scene.update();
+
+        SDL_Delay(1);
+    }
+
+    SDL_DestroyTexture(textT);
+    scene.SDLDestroy();
+
+    quitSDL();
+
+    return EXIT_SUCCESS;
+}
+
+/*if (rect.x > 900) {
             position(rect, 100, rect.y);
         }
         else {
@@ -46,16 +73,4 @@ int main(int argc, char** args) {
             scene.noisePixel();
             scene.noisePixel(tex, rect);
             count = 0;
-        }
-
-        scene.update();
-
-        SDL_Delay(3);
-    }
-
-    scene.SDLDestroy();
-
-    quitSDL();
-
-    return EXIT_SUCCESS;
-}
+        }*/

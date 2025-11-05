@@ -8,11 +8,14 @@ bool initializeSDL()
 		return false;
 	}
 
+	TTF_Init();
+
 	return true;
 }
 
 bool quitSDL()
 {
+	TTF_Quit();
 	SDL_Quit();
 	return true;
 }
