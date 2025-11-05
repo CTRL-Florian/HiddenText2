@@ -10,4 +10,3 @@ class SDLFunctions
 
 bool initializeSDL();
 bool quitSDL();
-

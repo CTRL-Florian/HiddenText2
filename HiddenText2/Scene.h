@@ -60,4 +60,5 @@ private:
 };
 
 void position(SDL_Rect& rect, int x, int y);
+void positionCenter(SDL_Rect& rect, int x, int y);
 void move(SDL_Rect& rect, int x, int y);

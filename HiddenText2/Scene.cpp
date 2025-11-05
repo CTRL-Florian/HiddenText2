@@ -158,6 +158,12 @@ void position(SDL_Rect& rect, int x, int y)
 	rect.x = x; rect.y = y; 
 }
 
+void positionCenter(SDL_Rect& rect, int x, int y)
+{
+	rect.x = x - (rect.w) / 2;
+	rect.y = y - (rect.h) / 2;
+}
+
 void move(SDL_Rect& rect, int x, int y) 
 { 
 	rect.x += x; rect.y += y; 
