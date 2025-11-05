@@ -19,7 +19,7 @@ public:
 
 	SDL_Window* getWindow() const { return mWindow; }
 	SDL_Renderer* getRenderer() const { return mRenderer; }
-	SDL_Texture* getTexture() const { return mTexture; }
+	SDL_Texture* getBackground() const { return mBackground; }
 
 	bool drawRect(SDL_Rect rect);
 	bool drawRect(SDL_Rect rect, int r, int g, int b, int a);
@@ -34,6 +34,8 @@ public:
 	std::uniform_int_distribution<int> mGrayDist;
 	bool noiseGray();
 	bool noiseGray(SDL_Texture* tex, SDL_Rect rect);
+
+	bool keepBackground();
 
 	bool update();
 	bool update(bool clear);
@@ -53,8 +55,8 @@ private:
 	SDL_Renderer* mRenderer = nullptr;
 	bool createRenderer();
 
-	SDL_Texture* mTexture = nullptr;
-	bool createTexture();
+	SDL_Texture* mBackground = nullptr;
+	bool createBackground();
 };
 
 void position(SDL_Rect& rect, int x, int y);

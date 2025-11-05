@@ -11,7 +11,7 @@ Scene::Scene(std::string windowName, int width, int height) :
 {
 	createWindow(windowName);
 	createRenderer();
-	createTexture();
+	createBackground();
 
 	mRNG.seed(std::random_device{}());
 	mBinDist = std::uniform_int_distribution<int>(0, 1);
@@ -46,11 +46,11 @@ bool Scene::createRenderer()
 	return true;
 }
 
-bool Scene::createTexture() 
+bool Scene::createBackground() 
 {
-	mTexture = SDL_CreateTexture(mRenderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, mWidth, mHeight);
+	mBackground = SDL_CreateTexture(mRenderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, mWidth, mHeight);
 
-	if (!mTexture) {
+	if (!mBackground) {
 		std::cerr << "Error creating texture: " << SDL_GetError() << std::endl;
 		system("pause");
 		return false;
@@ -75,7 +75,7 @@ bool Scene::fill(SDL_Rect rect, int r, int g, int b, int a)
 	return true;
 }
 
-bool Scene::noisePixel() { return noisePixel(mTexture, mRect); }
+bool Scene::noisePixel() { return noisePixel(mBackground, mRect); }
 bool Scene::noisePixel(SDL_Texture* tex, SDL_Rect rect)
 {
 	void* pixels;
@@ -99,7 +99,7 @@ bool Scene::noisePixel(SDL_Texture* tex, SDL_Rect rect)
 	return false;
 }
 
-bool Scene::noiseGray() { return noiseGray(mTexture, mRect); }
+bool Scene::noiseGray() { return noiseGray(mBackground, mRect); }
 bool Scene::noiseGray(SDL_Texture* tex, SDL_Rect rect)
 {
 	void* pixels;
@@ -124,6 +124,12 @@ bool Scene::noiseGray(SDL_Texture* tex, SDL_Rect rect)
 	return false;
 }
 
+bool Scene::keepBackground()
+{
+	SDL_RenderCopy(mRenderer, mBackground, nullptr, &mRect);
+	return true;
+}
+
 bool Scene::update() { return update(true); }
 bool Scene::update(bool clear)
 {
@@ -140,7 +146,7 @@ bool Scene::renderClear()
 
 bool Scene::SDLDestroy()
 {
-	SDL_DestroyTexture(mTexture);
+	SDL_DestroyTexture(mBackground);
 	SDL_DestroyRenderer(mRenderer);
 	SDL_DestroyWindow(mWindow);
 

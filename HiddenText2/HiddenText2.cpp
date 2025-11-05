@@ -20,6 +20,9 @@ int main(int argc, char** args) {
     SDL_Rect rect{ 100, 100, 200, 200 };
     SDL_Texture* tex = SDL_CreateTexture(scene.getRenderer(), SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, 200, 200);
 
+    int count = 0;
+    int multiplier = 4;
+
     bool running = true;
     SDL_Event e;
     while (running) {
@@ -34,10 +37,20 @@ int main(int argc, char** args) {
             move(rect, 10, 0);
         }
 
-        scene.noisePixel(tex, rect);
+        if (count < multiplier) {
+            scene.keepBackground();
+            scene.noisePixel(tex, rect);
+            count++;
+        }
+        else if (count >= multiplier) {
+            scene.noisePixel();
+            scene.noisePixel(tex, rect);
+            count = 0;
+        }
+
         scene.update();
 
-        SDL_Delay(10);
+        SDL_Delay(3);
     }
 
     scene.SDLDestroy();
