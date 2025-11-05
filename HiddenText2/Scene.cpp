@@ -1,13 +1,13 @@
 #include "Scene.h"
 
-Scene::Scene() : Scene("Window", 1280, 720)
+Scene::Scene() : Scene("Window", 1280, 720, 0)
 {
 	
 }
 
-Scene::Scene(std::string windowName, int width, int height) :
-	mWidth{width},
-	mHeight{height}
+Scene::Scene(std::string windowName, int width, int height, int padding) :
+	mWidth{width}, mHeight{height},
+	mPadding{padding}
 {
 	createWindow(windowName);
 	createRenderer();

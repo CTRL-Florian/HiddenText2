@@ -12,7 +12,7 @@ class Scene
 {
 public:
 	Scene(); 
-	Scene(std::string windowName, int width, int height);
+	Scene(std::string windowName, int width, int height, int padding);
 
 	int getWidth() const { return mWidth; }
 	int getHeight() const { return mHeight; }
@@ -46,6 +46,8 @@ public:
 private:
 	int mWidth;
 	int mHeight;
+
+	int mPadding;
 
 	SDL_Rect mRect;
 
