@@ -66,8 +66,10 @@ bool Scene::drawRect(SDL_Rect rect, int r, int g, int b, int a)
 	return true;
 }
 
-bool Scene::fill() { return fill(mRect, 255, 255, 255, 255); }
-bool Scene::fill(SDL_Rect rect, int r, int g, int b, int a)
+bool Scene::fill() { return drawFilledRect(mRect, 255, 255, 255, 255); }
+bool Scene::fill(int r, int g, int b, int a) { return drawFilledRect(mRect, r, g, b, a); }
+
+bool Scene::drawFilledRect(SDL_Rect rect, int r, int g, int b, int a)
 {
 	SDL_SetRenderDrawColor(mRenderer, r, g, b, a);
 	SDL_RenderFillRect(mRenderer, &rect);
@@ -128,6 +130,13 @@ bool Scene::noisePixelOnText(SDL_Texture* tex, int x, int y)
 	int w, h;
 	SDL_QueryTexture(tex, nullptr, nullptr, &w, &h);
 
+	SDL_Rect rect{ x, y, w, h };
+
+	return noisePixelOnText(tex, rect);
+}
+
+bool Scene::noisePixelOnText(SDL_Texture* tex, SDL_Rect rect)
+{
 	void* pixels;
 	int pitch;
 	if (SDL_LockTexture(tex, nullptr, &pixels, &pitch) != 0) {
@@ -138,9 +147,9 @@ bool Scene::noisePixelOnText(SDL_Texture* tex, int x, int y)
 	Uint32* p = static_cast<Uint32*>(pixels);
 	int rowPixels = pitch / 4;
 
-	for (int j = 0; j < h; ++j) {
+	for (int j = 0; j < rect.h; ++j) {
 		Uint32* row = p + j * rowPixels;
-		for (int i = 0; i < w; ++i) {
+		for (int i = 0; i < rect.w; ++i) {
 			Uint32 pixel = row[i];
 			Uint8 alpha = pixel >> 24;
 			if (alpha > 0) {
@@ -151,13 +160,25 @@ bool Scene::noisePixelOnText(SDL_Texture* tex, int x, int y)
 
 	SDL_UnlockTexture(tex);
 
-	SDL_Rect dst{ x, y, w, h };
-	SDL_RenderCopy(mRenderer, tex, nullptr, &dst);
+	SDL_RenderCopy(mRenderer, tex, nullptr, &rect);
 	return true;
+}
+
+SDL_Rect Scene::rectToCenter(SDL_Texture* tex) const
+{
+	int texW; int texH;
+	SDL_QueryTexture(tex, nullptr, nullptr, &texW, &texH);
+
+	int x = (mWidth - texW) / 2;
+	int y = (mHeight - texH) / 2;
+
+	SDL_Rect rect{ x, y, texW, texH };
+	return rect;
 }
 
 bool Scene::keepBackground()
 {
+	if (!mBackground) return false;
 	SDL_RenderCopy(mRenderer, mBackground, nullptr, &mRect);
 	return true;
 }
@@ -206,6 +227,36 @@ void positionCenter(SDL_Rect& rect, int x, int y)
 void move(SDL_Rect& rect, int x, int y) 
 { 
 	rect.x += x; rect.y += y; 
+}
+
+void resize(SDL_Rect& rect, int m)
+{
+	if (m <= 0) return;
+	resize(rect, rect.w * m, rect.h * m);
+}
+
+void resize(SDL_Rect& rect, int w, int h)
+{
+	if (w <= 0 || h <= 0) return;
+	rect.w = w; rect.h = h;
+}
+
+void resizeAll(SDL_Rect& rect, int m)
+{
+	if (m <= 0) return;
+	resize(rect, rect.w * m, rect.h * m);
+}
+
+void resizeAll(SDL_Rect& rect, int w, int h)
+{
+	if (w <= 0 || h <= 0) return;
+
+	int xCenter = rect.x + rect.w / 2;
+	int yCenter = rect.y + rect.h / 2;
+
+	rect.w = w; rect.h = h;
+
+	positionCenter(rect, xCenter, yCenter);
 }
 
 SDL_Texture* textTexture(SDL_Renderer* r, const char* s, int size)
