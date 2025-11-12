@@ -132,7 +132,7 @@ void squareProgram()
 
         scene.update();     // Update the window.
 
-        SDL_Delay(1);
+        SDL_Delay(20);
     }
 
     scene.SDLDestroy();
@@ -147,7 +147,7 @@ void textProgram()
     Scene scene;
 
     auto r = scene.getRenderer();               
-    auto textT = textTexture(r, "HELLO", 375);  // Create a texture with the text "HELLO".
+    auto textT = textTexture(r, "HELLO", 340);  // Create a texture with the text "HELLO".
     auto rect = scene.rectToCenter(textT);      // Find the rect to center the text.
 
     int count = 0;          // Counter to count iterations.
@@ -173,7 +173,7 @@ void textProgram()
 
         scene.update();     // Update the window.
 
-        SDL_Delay(1);
+        SDL_Delay(8);
     }
 
     SDL_DestroyTexture(textT);

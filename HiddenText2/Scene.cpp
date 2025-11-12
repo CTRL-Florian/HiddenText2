@@ -58,7 +58,7 @@ bool Scene::createBackground()
 	return true;
 }
 
-bool Scene::drawRect(SDL_Rect rect) { return drawRect(rect, 255, 255, 255, 255); }
+bool Scene::drawRect(SDL_Rect rect) { return drawRect(rect, 255, 0, 0, 255); }
 bool Scene::drawRect(SDL_Rect rect, int r, int g, int b, int a)
 {
 	SDL_SetRenderDrawColor(mRenderer, r, g, b, a);
@@ -267,6 +267,8 @@ SDL_Texture* textTexture(SDL_Renderer* r, const char* s, int size)
 		TTF_CloseFont(font);
 		return nullptr;
 	}
+
+	TTF_SetFontStyle(font, TTF_STYLE_BOLD);
 
 	SDL_Color color{ 0, 0, 0, 255 };
 	SDL_Surface* surface = TTF_RenderText_Blended(font, s, color);
